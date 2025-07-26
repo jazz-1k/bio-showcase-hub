@@ -14,7 +14,161 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      products: {
+        Row: {
+          button_text: string | null
+          category: string | null
+          created_at: string
+          description: string | null
+          external_link: string | null
+          id: string
+          image_url: string | null
+          is_featured: boolean | null
+          name: string
+          original_price: number | null
+          position: number | null
+          price: number | null
+          stock_quantity: number | null
+          updated_at: string
+          vitrine_id: string
+        }
+        Insert: {
+          button_text?: string | null
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          external_link?: string | null
+          id?: string
+          image_url?: string | null
+          is_featured?: boolean | null
+          name: string
+          original_price?: number | null
+          position?: number | null
+          price?: number | null
+          stock_quantity?: number | null
+          updated_at?: string
+          vitrine_id: string
+        }
+        Update: {
+          button_text?: string | null
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          external_link?: string | null
+          id?: string
+          image_url?: string | null
+          is_featured?: boolean | null
+          name?: string
+          original_price?: number | null
+          position?: number | null
+          price?: number | null
+          stock_quantity?: number | null
+          updated_at?: string
+          vitrine_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "products_vitrine_id_fkey"
+            columns: ["vitrine_id"]
+            isOneToOne: false
+            referencedRelation: "vitrines"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          display_name: string | null
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      vitrines: {
+        Row: {
+          avatar_url: string | null
+          background_color: string | null
+          created_at: string
+          custom_css: string | null
+          description: string | null
+          font_family: string | null
+          id: string
+          is_published: boolean | null
+          layout_style: string | null
+          primary_color: string | null
+          secondary_color: string | null
+          seo_description: string | null
+          seo_title: string | null
+          slug: string
+          social_links: Json | null
+          text_color: string | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          background_color?: string | null
+          created_at?: string
+          custom_css?: string | null
+          description?: string | null
+          font_family?: string | null
+          id?: string
+          is_published?: boolean | null
+          layout_style?: string | null
+          primary_color?: string | null
+          secondary_color?: string | null
+          seo_description?: string | null
+          seo_title?: string | null
+          slug: string
+          social_links?: Json | null
+          text_color?: string | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          background_color?: string | null
+          created_at?: string
+          custom_css?: string | null
+          description?: string | null
+          font_family?: string | null
+          id?: string
+          is_published?: boolean | null
+          layout_style?: string | null
+          primary_color?: string | null
+          secondary_color?: string | null
+          seo_description?: string | null
+          seo_title?: string | null
+          slug?: string
+          social_links?: Json | null
+          text_color?: string | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
