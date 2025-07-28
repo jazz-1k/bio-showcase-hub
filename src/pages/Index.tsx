@@ -61,8 +61,8 @@ const Index = () => {
               Crie sua vitrine personalizada em minutos
             </p>
             <div className="flex gap-4 justify-center">
-              <Button onClick={() => navigate('/auth')} variant="default">
-                Começar Agora
+              <Button onClick={() => navigate('/auth')} variant="default" size="lg">
+                🚀 Criar Minha Vitrine
               </Button>
               <Button variant="outline" onClick={() => navigate('/auth')}>
                 Fazer Login
