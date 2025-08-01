@@ -5,7 +5,9 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Upload, User } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { ImageUpload } from './ImageUpload';
+import { User, ExternalLink, Check, AlertCircle } from 'lucide-react';
 
 interface Vitrine {
   id: string;
@@ -34,6 +36,9 @@ export const VitrineEditor = ({ vitrine, onSave, isSaving }: VitrineEditorProps)
     avatar_url: vitrine.avatar_url || '',
     social_links: vitrine.social_links || {}
   });
+  
+  const [slugAvailable, setSlugAvailable] = useState<boolean | null>(null);
+  const [isCheckingSlug, setIsCheckingSlug] = useState(false);
 
   const handleSave = () => {
     onSave(formData);
@@ -50,35 +55,61 @@ export const VitrineEditor = ({ vitrine, onSave, isSaving }: VitrineEditorProps)
     }));
   };
 
+  const checkSlugAvailability = async (slug: string) => {
+    if (!slug || slug === vitrine.slug) {
+      setSlugAvailable(null);
+      return;
+    }
+
+    setIsCheckingSlug(true);
+    // Simular verificação de disponibilidade
+    await new Promise(resolve => setTimeout(resolve, 800));
+    
+    // Por simplicidade, vamos considerar slugs com mais de 3 caracteres como disponíveis
+    const available = slug.length > 3 && !slug.includes(' ');
+    setSlugAvailable(available);
+    setIsCheckingSlug(false);
+  };
+
+  const handleSlugChange = (slug: string) => {
+    const cleanSlug = slug.toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-');
+    handleInputChange('slug', cleanSlug);
+    checkSlugAvailability(cleanSlug);
+  };
+
   return (
     <div className="space-y-6">
       {/* Informações Básicas */}
-      <Card>
+      <Card className="bg-gradient-card border-0 shadow-card">
         <CardHeader>
-          <CardTitle>Informações Básicas</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            <User className="h-5 w-5" />
+            Informações Básicas
+          </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex items-center gap-4">
-            <Avatar className="h-20 w-20">
-              <AvatarImage src={formData.avatar_url} />
-              <AvatarFallback>
-                <User className="h-8 w-8" />
-              </AvatarFallback>
-            </Avatar>
-            <div className="flex-1">
-              <Label htmlFor="avatar">Foto de Perfil</Label>
-              <div className="flex gap-2 mt-1">
-                <Input
-                  id="avatar"
-                  placeholder="URL da imagem"
-                  value={formData.avatar_url}
-                  onChange={(e) => handleInputChange('avatar_url', e.target.value)}
-                />
-                <Button variant="outline" size="sm">
-                  <Upload className="h-4 w-4" />
-                </Button>
+        <CardContent className="space-y-6">
+          {/* Avatar Section */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-6">
+              <Avatar className="h-24 w-24 border-4 border-background shadow-lg">
+                <AvatarImage src={formData.avatar_url} />
+                <AvatarFallback className="bg-gradient-primary text-white">
+                  <User className="h-10 w-10" />
+                </AvatarFallback>
+              </Avatar>
+              <div className="flex-1">
+                <h4 className="font-medium mb-2">Foto de Perfil</h4>
+                <p className="text-sm text-muted-foreground mb-3">
+                  Adicione uma foto que represente você ou sua marca
+                </p>
               </div>
             </div>
+            
+            <ImageUpload
+              value={formData.avatar_url}
+              onChange={(url) => handleInputChange('avatar_url', url)}
+              placeholder="URL da sua foto de perfil"
+            />
           </div>
 
           <div>
@@ -91,19 +122,48 @@ export const VitrineEditor = ({ vitrine, onSave, isSaving }: VitrineEditorProps)
             />
           </div>
 
-          <div>
+          <div className="space-y-3">
             <Label htmlFor="slug">Link Personalizado</Label>
-            <div className="flex items-center">
-              <span className="text-sm text-muted-foreground mr-2">
-                {window.location.origin}/v/
-              </span>
-              <Input
-                id="slug"
-                value={formData.slug}
-                onChange={(e) => handleInputChange('slug', e.target.value)}
-                placeholder="meu-link"
-                className="flex-1"
-              />
+            <div className="space-y-2">
+              <div className="flex items-center rounded-lg border bg-muted/50 p-3">
+                <span className="text-sm text-muted-foreground mr-2 font-mono">
+                  vitrine.bio/v/
+                </span>
+                <Input
+                  id="slug"
+                  value={formData.slug}
+                  onChange={(e) => handleSlugChange(e.target.value)}
+                  placeholder="meu-link-unico"
+                  className="flex-1 border-0 bg-transparent focus-visible:ring-0 font-mono"
+                />
+                {isCheckingSlug && (
+                  <div className="ml-2 h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                )}
+                {slugAvailable === true && (
+                  <Check className="ml-2 h-4 w-4 text-green-500" />
+                )}
+                {slugAvailable === false && (
+                  <AlertCircle className="ml-2 h-4 w-4 text-destructive" />
+                )}
+              </div>
+              
+              {slugAvailable === false && (
+                <p className="text-xs text-destructive">
+                  Este link não está disponível. Tente outro.
+                </p>
+              )}
+              {slugAvailable === true && (
+                <p className="text-xs text-green-600">
+                  Link disponível! ✨
+                </p>
+              )}
+              
+              <div className="flex items-center gap-2 p-2 bg-muted/30 rounded-lg">
+                <ExternalLink className="h-4 w-4 text-muted-foreground" />
+                <span className="text-xs text-muted-foreground font-mono">
+                  Link final: {window.location.origin}/v/{formData.slug}
+                </span>
+              </div>
             </div>
           </div>
 
@@ -121,37 +181,50 @@ export const VitrineEditor = ({ vitrine, onSave, isSaving }: VitrineEditorProps)
       </Card>
 
       {/* Redes Sociais */}
-      <Card>
+      <Card className="bg-gradient-card border-0 shadow-card">
         <CardHeader>
-          <CardTitle>Redes Sociais</CardTitle>
+          <CardTitle>Redes Sociais & Contato</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          {[
-            { key: 'instagram', label: 'Instagram', placeholder: '@usuario' },
-            { key: 'whatsapp', label: 'WhatsApp', placeholder: '+5511999999999' },
-            { key: 'tiktok', label: 'TikTok', placeholder: '@usuario' },
-            { key: 'youtube', label: 'YouTube', placeholder: 'Canal ou @usuario' },
-            { key: 'email', label: 'E-mail', placeholder: 'contato@email.com' }
-          ].map(social => (
-            <div key={social.key}>
-              <Label>{social.label}</Label>
-              <Input
-                value={formData.social_links[social.key] || ''}
-                onChange={(e) => handleSocialChange(social.key, e.target.value)}
-                placeholder={social.placeholder}
-              />
-            </div>
-          ))}
+          <div className="grid gap-4">
+            {[
+              { key: 'instagram', label: 'Instagram', placeholder: '@usuario', icon: '📷' },
+              { key: 'whatsapp', label: 'WhatsApp', placeholder: '+5511999999999', icon: '💬' },
+              { key: 'tiktok', label: 'TikTok', placeholder: '@usuario', icon: '🎵' },
+              { key: 'youtube', label: 'YouTube', placeholder: 'Canal ou @usuario', icon: '🎥' },
+              { key: 'email', label: 'E-mail', placeholder: 'contato@email.com', icon: '✉️' }
+            ].map(social => (
+              <div key={social.key} className="space-y-2">
+                <Label className="flex items-center gap-2">
+                  <span>{social.icon}</span>
+                  {social.label}
+                </Label>
+                <div className="relative">
+                  <Input
+                    value={formData.social_links[social.key] || ''}
+                    onChange={(e) => handleSocialChange(social.key, e.target.value)}
+                    placeholder={social.placeholder}
+                    className="pl-3"
+                  />
+                  {formData.social_links[social.key] && (
+                    <Badge variant="secondary" className="absolute right-2 top-1/2 -translate-y-1/2 text-xs">
+                      Conectado
+                    </Badge>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
         </CardContent>
       </Card>
 
       {/* SEO */}
-      <Card>
+      <Card className="bg-gradient-card border-0 shadow-card">
         <CardHeader>
           <CardTitle>SEO & Compartilhamento</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div>
+          <div className="space-y-2">
             <Label htmlFor="seo_title">Título para Compartilhamento</Label>
             <Input
               id="seo_title"
@@ -159,9 +232,12 @@ export const VitrineEditor = ({ vitrine, onSave, isSaving }: VitrineEditorProps)
               onChange={(e) => handleInputChange('seo_title', e.target.value)}
               placeholder="Como aparecerá no WhatsApp, Instagram..."
             />
+            <p className="text-xs text-muted-foreground">
+              Ideal: 50-60 caracteres ({formData.seo_title.length}/60)
+            </p>
           </div>
 
-          <div>
+          <div className="space-y-2">
             <Label htmlFor="seo_description">Descrição para Compartilhamento</Label>
             <Textarea
               id="seo_description"
@@ -170,13 +246,38 @@ export const VitrineEditor = ({ vitrine, onSave, isSaving }: VitrineEditorProps)
               placeholder="Descrição que aparecerá quando o link for compartilhado"
               rows={3}
             />
+            <p className="text-xs text-muted-foreground">
+              Ideal: 150-160 caracteres ({formData.seo_description.length}/160)
+            </p>
+          </div>
+
+          <div className="p-4 bg-muted/50 rounded-lg">
+            <h4 className="text-sm font-medium mb-2">Preview do Compartilhamento</h4>
+            <div className="space-y-1">
+              <p className="text-sm font-medium text-primary">
+                {formData.seo_title || formData.title}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                {formData.seo_description || formData.description}
+              </p>
+              <p className="text-xs text-muted-foreground font-mono">
+                {window.location.origin}/v/{formData.slug}
+              </p>
+            </div>
           </div>
         </CardContent>
       </Card>
 
-      <Button onClick={handleSave} disabled={isSaving} className="w-full">
-        {isSaving ? 'Salvando...' : 'Salvar Alterações'}
-      </Button>
+      <div className="sticky bottom-0 bg-background/95 backdrop-blur-sm border-t p-4 -mx-6 -mb-6">
+        <Button 
+          onClick={handleSave} 
+          disabled={isSaving || slugAvailable === false} 
+          className="w-full bg-gradient-primary text-white hover:opacity-90"
+          size="lg"
+        >
+          {isSaving ? 'Salvando...' : 'Salvar Alterações'}
+        </Button>
+      </div>
     </div>
   );
 };

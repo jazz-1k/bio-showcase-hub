@@ -103,6 +103,33 @@ export type Database = {
         }
         Relationships: []
       }
+      vitrine_analytics: {
+        Row: {
+          created_at: string
+          id: string
+          last_visit: string | null
+          updated_at: string
+          visits_count: number
+          vitrine_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          last_visit?: string | null
+          updated_at?: string
+          visits_count?: number
+          vitrine_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          last_visit?: string | null
+          updated_at?: string
+          visits_count?: number
+          vitrine_id?: string
+        }
+        Relationships: []
+      }
       vitrines: {
         Row: {
           avatar_url: string | null
